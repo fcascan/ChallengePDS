@@ -2,5 +2,5 @@
 <resources>
     <string name="btnLeftName">Factorial</string>
     <string name="btnRightName">Hora</string>
-    <string name="editTextNumberPlaceholder">Positive numbers only and zero</string>
+    <string name="editTextNumberPlaceholder">Only mean positive numbers and zero are valid</string>
 </resources>
