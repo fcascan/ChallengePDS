@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="btnLeftName">Factorial</string>
+    <string name="btnRightName">Hora</string>
+    <string name="editTextNumberPlaceholder">Positive numbers only and zero</string>
+</resources>
