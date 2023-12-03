@@ -67,6 +67,7 @@ dependencies {
 
     //Retrofit https://square.github.io/retrofit/ - latest vesion https://github.com/square/retrofit.
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")   //Gson -> json data to kotlin format
 
     //Room:
     //https://developer.android.com/jetpack/androidx/releases/room?hl=es-419

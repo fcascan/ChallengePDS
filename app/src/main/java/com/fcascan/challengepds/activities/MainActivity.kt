@@ -3,8 +3,10 @@ package com.fcascan.challengepds.activities
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.fcascan.challengepds.R
+import androidx.lifecycle.ViewModelProvider
 import com.fcascan.challengepds.databinding.ActivityMainBinding
+import com.fcascan.challengepds.repositories.MainRepository
+import com.fcascan.challengepds.services.RetrofitService
 import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
@@ -14,13 +16,20 @@ class MainActivity : AppCompatActivity() {
     private var _binding : ActivityMainBinding? = null
     private val binding get() = _binding!!
 
+    //ViewModels:
+    lateinit var mainActivityViewModel: MainActivityViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        //Initialize ViewModel:
+        val retrofitService = RetrofitService.getInstance()
+        val mainRepository = MainRepository(retrofitService)
+        mainActivityViewModel = ViewModelProvider(this, MyViewModelFactory(mainRepository))[MainActivityViewModel::class.java]
 
         //Lifecycle Log:
-        Log.d(_TAG, "onCreate - TimeStamp: ${System.currentTimeMillis()}")
-        //TODO almacenar en Room este lifecycle log
+        Log.d("$_TAG - onCreate", "TimeStamp: ${System.currentTimeMillis()}")
+        mainActivityViewModel.saveTimeStamp()
 
         //View Binding:
         _binding = ActivityMainBinding.inflate(layoutInflater)
@@ -40,7 +49,7 @@ class MainActivity : AppCompatActivity() {
             if (number < 0)
                 binding.tvFactorialResult.text = "Math Error"
             else {
-                val factorial = myFactorial(number)
+                val factorial = mainActivityViewModel.myFactorial(number)
                 binding.tvFactorialResult.text = "$number!  =  $factorial"
                 //TODO considerar el caso de que el número sea muy grande
             }
@@ -56,7 +65,7 @@ class MainActivity : AppCompatActivity() {
             if (number < 0)
                 binding.tvFactorialResult.text = "Math Error"
             else {
-                val factorial = myRecursiveFactorial(number)
+                val factorial = mainActivityViewModel.myRecursiveFactorial(number)
                 binding.tvFactorialResult.text = "$number!  =  $factorial"
                 //TODO considerar el caso de que el número sea muy grande
             }
@@ -64,9 +73,7 @@ class MainActivity : AppCompatActivity() {
 
         //Button Time:
         binding.btnTime.setOnClickListener {
-            val time = System.currentTimeMillis()
-            Snackbar.make(binding.root, "Time: $time", Snackbar.LENGTH_LONG).show()
-            //TODO esta logica tiene que ser mediante una pegada a una API
+            mainActivityViewModel.getTime()
         }
 
         //Edit Text Enter Pressed:
@@ -77,29 +84,37 @@ class MainActivity : AppCompatActivity() {
             }
             return@setOnKeyListener false
         }
+
+        //LiveData:
+        mainActivityViewModel.currentTime.observe(this) { timeDTO ->
+            Log.d("$_TAG - onCreate", "currentTime changed: $timeDTO")
+            Snackbar.make(binding.root, "Current DateTime: ${timeDTO.currentDateTime}", Snackbar.LENGTH_LONG).show()
+        }
+
+        mainActivityViewModel.errorMessage.observe(this) { errorMessage ->
+            Log.d("$_TAG - onCreate", "errorMessage changed: $errorMessage")
+            Snackbar.make(binding.root, "Error: $errorMessage", Snackbar.LENGTH_LONG).show()
+        }
+
+        mainActivityViewModel.loading.observe(this) { loading ->
+            Log.d("$_TAG - onCreate", "loading changed: $loading")
+            if (loading)
+                binding.progressBar.visibility = android.view.View.VISIBLE
+            else
+                binding.progressBar.visibility = android.view.View.GONE
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
         //Lifecycle Log:
-        Log.d(_TAG, "onCreate - TimeStamp: ${System.currentTimeMillis()}")
-        //TODO almacenar en Room este lifecycle log
+        Log.d("$_TAG - onDestroy", "TimeStamp: ${System.currentTimeMillis()}")
+        mainActivityViewModel.saveTimeStamp()
 
-//        sharedViewModel.screenState.removeObservers(this)
+        //Remove Observers:
+        mainActivityViewModel.currentTime.removeObservers(this)
+
         finish()
-    }
-
-    fun myFactorial(number: Long): Long {
-        var result = 1L
-        for (i in 1L..number) {
-            result *= i
-        }
-        return result
-    }
-
-    fun myRecursiveFactorial(number: Long): Long {
-        if (number == 0L) return 1
-        return number * myRecursiveFactorial(number - 1)
     }
 }
