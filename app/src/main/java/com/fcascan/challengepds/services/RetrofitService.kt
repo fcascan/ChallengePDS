@@ -4,6 +4,7 @@ import android.util.Log
 import com.fcascan.challengepds.dto.TimeDTO
 import retrofit2.Response
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 
 interface RetrofitService {
@@ -18,7 +19,7 @@ interface RetrofitService {
                 Log.d("$_TAG - getInstance", "Creating Retrofit Service")
                 val retrofit = Retrofit.Builder()
                     .baseUrl(BASE_URL)
-                    .addConverterFactory(retrofit2.converter.gson.GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
                     .build()
                 retrofitService = retrofit.create(RetrofitService::class.java)
             }
