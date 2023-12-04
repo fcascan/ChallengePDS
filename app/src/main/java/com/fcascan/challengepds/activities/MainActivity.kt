@@ -44,80 +44,15 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         //Fill RecyclerView:
+        binding.recview.setHasFixedSize(false)
         mainActivityViewModel.refreshRecView()
 
         //Loading State Off:
         binding.progressBar.visibility = android.view.View.GONE
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        //Lifecycle Log:
-        Log.d("$_TAG - onStart", "Init")
-        mainActivityViewModel.saveTimeStamp("${javaClass.simpleName} - ${Thread.currentThread().stackTrace[2].methodName}")
-
-        //Button Factorial:
-        binding.btnFactorial.setOnClickListener {
-            if (binding.editTextNumber.text.toString() == "") {
-                binding.tvFactorialResult.text = "Please enter a number"
-                return@setOnClickListener
-            }
-            val number = binding.editTextNumber.text.toString().toLong()
-            if (number > 15) binding.tvFactorialResult.textSize = 28f
-            else binding.tvFactorialResult.textSize = 40f
-            if (number < 0)
-                binding.tvFactorialResult.text = "Math Error"
-            else if (number > 20)
-                binding.tvFactorialResult.text = "Result out of Long range"
-            else {
-                val factorial = mainActivityViewModel.myFactorial(number)
-                binding.tvFactorialResult.text = "$number!  =  $factorial"
-            }
-        }
-
-        //Button Recursive Factorial:
-        binding.btnFactorialV2.setOnClickListener {
-            if (binding.editTextNumber.text.toString() == "") {
-                binding.tvFactorialResult.text = "Please enter a number"
-                return@setOnClickListener
-            }
-            val number = binding.editTextNumber.text.toString().toLong()
-            if (number > 15) binding.tvFactorialResult.textSize = 28f
-            else binding.tvFactorialResult.textSize = 40f
-            if (number < 0)
-                binding.tvFactorialResult.text = "Math Error"
-            else if (number > 20)
-                binding.tvFactorialResult.text = "Result out of Long range"
-            else {
-                val factorial = mainActivityViewModel.myRecursiveFactorial(number)
-                binding.tvFactorialResult.text = "$number!  =  $factorial"
-            }
-        }
-
-        //Button Time:
-        binding.btnTime.setOnClickListener {
-            mainActivityViewModel.getTime()
-        }
-
-        //Floating Action Button Trash Bin:
-        binding.fabTrashBin.setOnClickListener {
-            mainActivityViewModel.deleteAllEvents()
-        }
-
-        //Edit-Text Enter Pressed:
-        binding.editTextNumber.setOnKeyListener { _, keyCode, event ->
-            if (keyCode == android.view.KeyEvent.KEYCODE_ENTER && event.action == android.view.KeyEvent.ACTION_UP) {
-                binding.btnFactorial.performClick()
-                return@setOnKeyListener true
-            }
-            return@setOnKeyListener false
-        }
 
         //LiveData:
         mainActivityViewModel.currentTime.observe(this) { timeDTO ->
             Log.d("$_TAG - onStart", "currentTime changed: $timeDTO")
-            //TODO: Agregar entrada al recyclerview
             Snackbar.make(binding.root, "Current DateTime: ${timeDTO.currentDateTime}", Snackbar.LENGTH_LONG).show()
         }
 
@@ -145,10 +80,78 @@ class MainActivity : AppCompatActivity() {
             recViewAdapter = EventsAdapter(
                 eventsList = eventsList
             )
-            binding.recview.setHasFixedSize(false)
             binding.recview.layoutManager = LinearLayoutManager(this)
             binding.recview.adapter = recViewAdapter
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        //Lifecycle Log:
+        Log.d("$_TAG - onStart", "Init")
+        mainActivityViewModel.saveTimeStamp("${javaClass.simpleName} - ${Thread.currentThread().stackTrace[2].methodName}")
+
+        //Button Factorial:
+        binding.btnFactorial.setOnClickListener {
+            if (binding.editTextNumber.text.toString() == "") {
+                binding.tvFactorialResult.text = "Please enter a number"
+                return@setOnClickListener
+            }
+            val number = binding.editTextNumber.text.toString().toLong()
+            if (number > 14) binding.tvFactorialResult.textSize = 28f
+            else binding.tvFactorialResult.textSize = 40f
+            if (number < 0)
+                binding.tvFactorialResult.text = "Math Error"
+            else if (number > 20)
+                binding.tvFactorialResult.text = "Result out of Long range"
+            else {
+                val factorial = mainActivityViewModel.myFactorial(number)
+                binding.tvFactorialResult.text = "$number!  =  $factorial"
+            }
+        }
+
+        //Button Recursive Factorial:
+        binding.btnFactorialV2.setOnClickListener {
+            if (binding.editTextNumber.text.toString() == "") {
+                binding.tvFactorialResult.text = "Please enter a number"
+                return@setOnClickListener
+            }
+            val number = binding.editTextNumber.text.toString().toLong()
+            if (number > 14) binding.tvFactorialResult.textSize = 28f
+            else binding.tvFactorialResult.textSize = 40f
+            if (number < 0)
+                binding.tvFactorialResult.text = "Math Error"
+            else if (number > 20)
+                binding.tvFactorialResult.text = "Result out of Long range"
+            else {
+                val factorial = mainActivityViewModel.myRecursiveFactorial(number)
+                binding.tvFactorialResult.text = "$number!  =  $factorial"
+            }
+        }
+
+        //Button Time:
+        binding.btnTime.setOnClickListener {
+            mainActivityViewModel.getCurrentTime()
+            mainActivityViewModel.saveTimeStamp("${javaClass.simpleName} - btnTime clicked")
+        }
+
+        //Floating Action Button Trash Bin:
+        binding.fabTrashBin.setOnClickListener {
+            mainActivityViewModel.deleteAllEvents()
+            Snackbar.make(binding.root, "All Events Deleted", Snackbar.LENGTH_LONG).show()
+        }
+
+        //Edit-Text Enter Pressed:
+        binding.editTextNumber.setOnKeyListener { _, keyCode, event ->
+            if (keyCode == android.view.KeyEvent.KEYCODE_ENTER && event.action == android.view.KeyEvent.ACTION_UP) {
+                binding.btnFactorial.performClick()
+                return@setOnKeyListener true
+            }
+            return@setOnKeyListener false
+        }
+
+
     }
 
     override fun onPause() {

@@ -88,10 +88,11 @@ class MainActivityViewModel constructor(private val mainRepository: MainReposito
     private suspend fun insertEvent(event: EventEntity) {
         withContext(Dispatchers.IO) {
             mainRepository.insertEvent(event)
+            refreshRecView()
         }
     }
 
-    fun getTime() {
+    fun getCurrentTime() {
         Log.d("$_TAG - getTime", "Init")
         _loading.postValue(true)
         job = CoroutineScope(Dispatchers.IO).launch {
@@ -123,9 +124,7 @@ class MainActivityViewModel constructor(private val mainRepository: MainReposito
         Log.d("$_TAG - deleteAllEvents", "Init")
         job = CoroutineScope(Dispatchers.IO).launch {
             mainRepository.deleteAllEvents()
-            withContext(Dispatchers.Main) {
-                refreshRecView()    //TODO() - esta linea no funciona
-            }
+            refreshRecView()    //TODO: No funciona, revisar
         }
     }
 
