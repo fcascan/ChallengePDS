@@ -9,10 +9,10 @@ import retrofit2.http.GET
 interface RetrofitService {
 
     companion object {
-        private val _TAG = "FCC#RetrofitService"
-        private val BASE_URL = "http://worldclockapi.com"
+        private const val _TAG = "FCC#RetrofitService"
 
-        var retrofitService: RetrofitService? = null
+        private const val BASE_URL = "http://worldclockapi.com"
+        private var retrofitService: RetrofitService? = null
         fun getInstance() : RetrofitService {
             if (retrofitService == null) {
                 Log.d("$_TAG - getInstance", "Creating Retrofit Service")
