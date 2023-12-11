@@ -127,7 +127,7 @@ class MainActivityViewModel constructor(private val mainRepository: MainReposito
     private suspend fun deleteAllEvents() {
         Log.d("$_TAG - deleteAllEvents", "Init")
         mainRepository.deleteAllEvents()
-        refreshRecView()    //TODO: No funciona, revisar
+        refreshRecView()
     }
 
     private fun updateTime(time: TimeDTO) {
