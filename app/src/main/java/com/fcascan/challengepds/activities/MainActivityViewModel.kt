@@ -11,6 +11,7 @@ import com.fcascan.challengepds.repositories.MainRepository
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,7 +42,7 @@ class MainActivityViewModel constructor(private val mainRepository: MainReposito
     //Public Methods:
     fun refreshRecView() {
         Log.d("$_TAG - refreshRecView", "Init")
-        job = CoroutineScope(Dispatchers.IO).launch {
+        GlobalScope.launch(Dispatchers.IO) {
             val allEvents =  mainRepository.getAllEvents()
             withContext(Dispatchers.Main) {
                 if (allEvents != null) {
@@ -70,7 +71,7 @@ class MainActivityViewModel constructor(private val mainRepository: MainReposito
                         val event = EventEntity(
                             0L,
                             name,
-                            time.currentDateTime
+                            time.dateTime
                         )
                         insertEvent(event)
                     } else {
@@ -93,18 +94,16 @@ class MainActivityViewModel constructor(private val mainRepository: MainReposito
     }
 
     fun getCurrentTime() {
-        Log.d("$_TAG - getTime", "Init")
+        Log.d("$_TAG - getCurrentTime", "Init")
         _loading.postValue(true)
         job = CoroutineScope(Dispatchers.IO).launch {
             val response = mainRepository.getTime()
-            withContext(Dispatchers.Main) {
-                if (response.isSuccessful) {
-                    Log.d("$_TAG - getTime", "Response: ${response.body()}")
-                    updateTime(response.body()!!)
-                } else {
-                    Log.d("$_TAG - getTime", "Response: ${response.errorBody()}")
-                    onError("Error: ${response.errorBody()}")
-                }
+            if (response.isSuccessful && response.body() != null) {
+                Log.d("$_TAG - getCurrentTime", "Response: ${response.body()}")
+                updateTime(response.body()!!)
+            } else {
+                Log.d("$_TAG - getCurrentTime", "Response: ${response.errorBody()}")
+                onError("Error: ${response.errorBody()}")
             }
         }
     }

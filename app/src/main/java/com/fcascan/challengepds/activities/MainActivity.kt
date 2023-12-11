@@ -53,12 +53,12 @@ class MainActivity : AppCompatActivity() {
         //LiveData:
         mainActivityViewModel.currentTime.observe(this) { timeDTO ->
             Log.d("$_TAG - onStart", "currentTime changed: $timeDTO")
-            Snackbar.make(binding.root, "Current DateTime: ${timeDTO.currentDateTime}", Snackbar.LENGTH_LONG).show()
+            Snackbar.make(binding.root, "Current DateTime: ${timeDTO.dateTime}", Snackbar.LENGTH_LONG).show()
         }
 
         mainActivityViewModel.errorMessage.observe(this) { errorMessage ->
             Log.d("$_TAG - onStart", "errorMessage changed: $errorMessage")
-            Snackbar.make(binding.root, "Error: $errorMessage", Snackbar.LENGTH_INDEFINITE).show()
+            Snackbar.make(binding.root, "Error: $errorMessage", Snackbar.LENGTH_LONG *2).show()
             binding.progressBar.visibility = android.view.View.GONE
             binding.btnTime.isEnabled = true
         }
