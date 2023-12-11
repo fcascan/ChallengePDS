@@ -76,12 +76,12 @@ class MainActivity : AppCompatActivity() {
 
         mainActivityViewModel.recViewContent.observe(this) { eventsList ->
             Log.d("$_TAG - onStart", "eventsList changed: $eventsList")
-            if (eventsList.isNullOrEmpty()) return@observe
             recViewAdapter = EventsAdapter(
-                eventsList = eventsList
+                eventsList = eventsList!!
             )
             binding.recview.layoutManager = LinearLayoutManager(this)
             binding.recview.adapter = recViewAdapter
+            binding.recview.refreshDrawableState()
         }
     }
 
@@ -138,7 +138,7 @@ class MainActivity : AppCompatActivity() {
 
         //Floating Action Button Trash Bin:
         binding.fabTrashBin.setOnClickListener {
-            mainActivityViewModel.deleteAllEvents()
+            mainActivityViewModel.deleteButtonClicked()
             Snackbar.make(binding.root, "All Events Deleted", Snackbar.LENGTH_LONG).show()
         }
 

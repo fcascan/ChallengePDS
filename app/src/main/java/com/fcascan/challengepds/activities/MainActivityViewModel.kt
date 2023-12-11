@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -39,32 +40,28 @@ class MainActivityViewModel constructor(private val mainRepository: MainReposito
         onError("Exception handled: ${throwable.localizedMessage}")
     }
 
+
     //Public Methods:
     fun refreshRecView() {
         Log.d("$_TAG - refreshRecView", "Init")
-        GlobalScope.launch(Dispatchers.IO) {
+        job = CoroutineScope(Dispatchers.IO).launch {
             val allEvents =  mainRepository.getAllEvents()
-            withContext(Dispatchers.Main) {
-                if (allEvents != null) {
-                    Log.d("$_TAG - refreshRecView", "getAllEvents(): $allEvents")
-                    val recViewContent = mutableListOf<EventsAdapter.EventObject>()
-                    allEvents.forEach {
-                        recViewContent.add(EventsAdapter.EventObject(it!!.name, it.timeStamp))
-                    }
-                    addRecViewDummies(recViewContent, 0)
-                    updateRecViewContent(recViewContent)
-                } else {
-                    Log.d("$_TAG - refreshRecView", "getAllEvents(): returned null or empty")
+            Log.d("$_TAG - refreshRecView", "getAllEvents(): $allEvents")
+            val recViewContent = mutableListOf<EventsAdapter.EventObject>()
+            if (!allEvents.isNullOrEmpty()) {
+                allEvents.forEach {
+                    recViewContent.add(EventsAdapter.EventObject(it!!.name, it.timeStamp))
                 }
             }
+            updateRecViewContent(recViewContent)
         }
     }
     fun saveTimeStamp(name: String) {
         Log.d("$_TAG - saveTimeStamp", "Init")
-        CoroutineScope(Dispatchers.IO).launch {
+        job = CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = mainRepository.getTime()
-                withContext(Dispatchers.Main) {
+                withContext(Dispatchers.IO) {
                     if (response.isSuccessful) {
                         Log.d("$_TAG - saveTimeStamp", "Response: ${response.body()}")
                         val time = response.body()!!
@@ -83,13 +80,6 @@ class MainActivityViewModel constructor(private val mainRepository: MainReposito
                 Log.e("$_TAG - saveTimeStamp", "Error: $e")
                 onError("Error: $e")
             }
-        }
-    }
-
-    private suspend fun insertEvent(event: EventEntity) {
-        withContext(Dispatchers.IO) {
-            mainRepository.insertEvent(event)
-            refreshRecView()
         }
     }
 
@@ -119,15 +109,27 @@ class MainActivityViewModel constructor(private val mainRepository: MainReposito
         return number * myRecursiveFactorial(number - 1)
     }
 
-    fun deleteAllEvents() {
-        Log.d("$_TAG - deleteAllEvents", "Init")
+    fun deleteButtonClicked() {
+        Log.d("$_TAG - deleteButtonClicked", "Trash Can Clicked")
         job = CoroutineScope(Dispatchers.IO).launch {
-            mainRepository.deleteAllEvents()
-            refreshRecView()    //TODO: No funciona, revisar
+            deleteAllEvents()
         }
     }
 
+
     //Private Methods:
+    private fun insertEvent(event: EventEntity) {
+        Log.d("$_TAG - insertEvent", "Init")
+        mainRepository.insertEvent(event)
+        refreshRecView()
+    }
+
+    private suspend fun deleteAllEvents() {
+        Log.d("$_TAG - deleteAllEvents", "Init")
+        mainRepository.deleteAllEvents()
+        refreshRecView()    //TODO: No funciona, revisar
+    }
+
     private fun updateTime(time: TimeDTO) {
         _currentTime.postValue(time)
         _loading.postValue(false)
@@ -143,10 +145,6 @@ class MainActivityViewModel constructor(private val mainRepository: MainReposito
         _loading.postValue(false)
     }
 
-    private fun addRecViewDummies(content: MutableList<EventsAdapter.EventObject>, count: Int) {
-        for (i in 1..count)
-            content.add(EventsAdapter.EventObject("", ""))
-    }
 
     //Lifecycle Methods:
     override fun onCleared() {
